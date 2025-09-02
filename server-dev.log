@@ -1,0 +1,22 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+Azure Cost Analysis Service initialized with all credentials
+1:32:40 AM [express] serving on port 9000
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+1:41:50 AM [vite] hmr update /src/components/query-sidebar.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+1:42:40 AM [vite] hmr update /src/components/query-sidebar.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+1:55:53 AM [vite] hmr update /src/components/cost-breakdown-table.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+1:56:01 AM [vite] hmr update /src/components/cost-breakdown-table.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+2:06:25 AM [vite] hmr update /src/components/cost-breakdown-table.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+2:06:32 AM [vite] hmr update /src/components/cost-overview-cards.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+2:06:48 AM [vite] hmr update /src/components/cost-breakdown-table.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+2:06:48 AM [vite] hmr update /src/components/cost-overview-cards.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+2:10:17 AM [vite] hmr update /src/pages/home.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+2:10:58 AM [vite] hmr update /src/pages/home.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+2:11:21 AM [vite] hmr update /src/pages/home.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+2:11:30 AM [vite] hmr update /src/pages/home.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
+2:11:30 AM [vite] hmr update /src/pages/home.tsx, /src/index.css?v=x4WpL-TvHM1bXtSpVIkcS
