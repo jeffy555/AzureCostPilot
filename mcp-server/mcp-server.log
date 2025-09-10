@@ -1,8 +1,0 @@
-🚀 Starting Azure MCP Server...
-✓ All Azure credentials are configured
-✓ Azure clients initialized successfully
-✅ Azure MCP Server running on port 3000
-🔗 Health check: http://localhost:3000/health
-🔗 MCP endpoint: http://localhost:3000/mcp/azure-cost-management
-📱 Ready to receive cost analysis requests!
-✓ All Azure credentials are configured

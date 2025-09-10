@@ -1,81 +1,72 @@
-# Azure Cost Analysis Dashboard
+# Overview
 
-## Overview
+This is a full-stack cloud cost management dashboard application built with React, Express, and TypeScript. The application provides a comprehensive interface for monitoring and managing Azure cloud costs through Service Principal connections. It features real-time cost tracking, budget utilization monitoring, resource breakdown analysis, and multi-cloud provider integration capabilities (with Azure currently implemented and AWS/GCP planned).
 
-This is a full-stack React application that provides Azure cost analysis capabilities through a web interface. The application allows users to query Azure cost data by subscription, resource group, or specific resources, and presents the information through interactive dashboards, chat interfaces, and structured data outputs. It uses a modern tech stack with React frontend, Express backend, and integrates with Azure cost management APIs through MCP (Model Context Protocol) clients.
+The system allows users to connect multiple Azure Service Principals, automatically sync cost data, and visualize spending patterns through interactive charts and tables. It includes service principal management, cost summaries, trend analysis, and resource-level cost breakdowns.
 
-## User Preferences
+# User Preferences
 
 Preferred communication style: Simple, everyday language.
 
-## System Architecture
+# System Architecture
 
-### Frontend Architecture
-- **Framework**: React 18 with TypeScript and Vite for build tooling
-- **UI Components**: shadcn/ui component library built on Radix UI primitives
-- **Styling**: Tailwind CSS with CSS custom properties for theming
-- **State Management**: TanStack React Query for server state management
+## Frontend Architecture
+- **Framework**: React 18 with TypeScript and Vite for development/bundling
+- **UI Framework**: Tailwind CSS with shadcn/ui component library using Radix UI primitives
+- **State Management**: TanStack React Query for server state management and caching
 - **Routing**: Wouter for lightweight client-side routing
-- **Forms**: React Hook Form with Zod validation resolvers
+- **Forms**: React Hook Form with Zod validation for type-safe form handling
+- **Charts**: Recharts for data visualization (cost trends, service breakdowns)
 
-### Backend Architecture
+## Backend Architecture
 - **Runtime**: Node.js with Express.js framework
 - **Language**: TypeScript with ESM modules
+- **API Pattern**: RESTful API with structured error handling and request logging
+- **Storage Abstraction**: Interface-based storage pattern with in-memory implementation for development
+- **Validation**: Zod schemas for runtime type validation shared between client and server
+
+## Data Storage Solutions
 - **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
-- **Session Storage**: PostgreSQL-based session storage with connect-pg-simple
-- **Development**: Hot reload with Vite middleware integration
+- **Connection**: Neon serverless database adapter for cloud-native database access
+- **Schema Management**: Drizzle Kit for database migrations and schema evolution
+- **Session Storage**: PostgreSQL-backed session store using connect-pg-simple
 
-### Data Storage Solutions
-- **Primary Database**: PostgreSQL (configured for use with Neon Database serverless)
-- **ORM**: Drizzle ORM with schema-first approach
-- **Migrations**: Drizzle Kit for database schema migrations
-- **Session Storage**: PostgreSQL tables for user session persistence
+## Database Schema Design
+- **Users**: Authentication and user management
+- **Service Principals**: Azure service principal credentials and connection status
+- **Cost Data**: Granular cost information by resource, service, and time period
+- **Cost Summary**: Aggregated cost metrics, trends, and budget utilization data
 
-### Authentication and Authorization
-- **Session Management**: Express sessions with PostgreSQL backend storage
-- **Storage Interface**: Abstracted storage layer with in-memory fallback for development
-- **User Management**: Basic user CRUD operations with UUID-based identification
+## Authentication and Authorization
+- **Session Management**: Express sessions with PostgreSQL storage backend
+- **Service Principal Auth**: Azure service principal credentials for cloud API access
+- **Security**: Sensitive data masking in API responses, secure credential storage
 
-### External Service Integrations
+# External Dependencies
 
-#### Azure Cost Management Integration
-- **Protocol**: MCP (Model Context Protocol) client for Azure cost analysis
-- **Authentication**: Azure Service Principal with Tenant ID, Client ID, Client Secret
-- **Architecture**: Secure backend API proxy to Azure MCP server
-- **API Structure**: RESTful endpoints for cost queries by subscription, resource group, or resource
-- **Data Types**: Structured cost analysis responses with resource breakdowns, trends, and optimization recommendations
-- **Error Handling**: Comprehensive error handling with fallback mechanisms
-- **Security**: Azure credentials managed via Replit Secrets and processed securely on backend
+## Cloud Provider Integration
+- **Azure**: Neon Database serverless adapter for Azure-compatible PostgreSQL
+- **Service Principal Authentication**: Azure AD service principal credentials for cost management API access
 
-#### Key Integration Features
-- Real-time cost analysis queries
-- Historical cost trend analysis
-- Resource-level cost breakdowns
-- Optimization recommendations with confidence levels
-- Service cost categorization and visualization
-- Chat interface for natural language cost queries
+## UI and Component Libraries
+- **Radix UI**: Comprehensive set of unstyled, accessible UI primitives
+- **Tailwind CSS**: Utility-first CSS framework with custom design system
+- **Lucide Icons**: Modern icon library with consistent design language
+- **Font Awesome**: Additional icon set for cloud provider branding
 
-### Component Architecture
-The frontend follows a modular component structure with:
-- **UI Components**: Reusable components from shadcn/ui
-- **Feature Components**: Specialized components for cost analysis (charts, tables, chat interface)
-- **Page Components**: Route-level components for different application views
-- **Custom Hooks**: Utility hooks for mobile detection, toast notifications, and form management
+## Development and Build Tools
+- **Vite**: Fast development server and optimized production builds
+- **TypeScript**: Static type checking across the entire stack
+- **ESBuild**: Fast JavaScript bundler for server-side code
+- **Replit Integration**: Development environment plugins for Replit platform
 
-### Development and Build Process
-- **Development**: Vite dev server with hot module replacement
-- **Build**: Vite for frontend bundling, esbuild for backend compilation
-- **Type Checking**: Comprehensive TypeScript configuration with strict mode
-- **Linting**: Path aliases configured for clean imports (@/, @shared/, @assets/)
+## Data Visualization
+- **Recharts**: React charting library built on D3.js for interactive cost visualizations
+- **Chart Components**: Line charts for cost trends, pie charts for service breakdowns
 
-The application architecture emphasizes type safety, developer experience, and maintainable code organization while providing a responsive and accessible user interface for Azure cost management tasks.
+## Form and Validation
+- **React Hook Form**: Performant forms with minimal re-renders
+- **Zod**: Schema validation library for runtime type safety
+- **Hookform Resolvers**: Integration between React Hook Form and Zod validation
 
-## Recent Changes
-
-**January 2025**
-- Updated architecture to use secure backend API for Azure MCP communication
-- Added Azure Service Principal authentication with Tenant ID, Client ID, Client Secret, and Subscription ID
-- Implemented backend Azure MCP client with proper credential handling
-- Added Azure health check endpoint at /api/azure/health
-- Enhanced frontend to show Azure connection status in real-time
-- Removed direct frontend-to-MCP communication for improved security
+The application uses a layered architecture with clear separation between presentation, business logic, and data access layers. The shared schema approach ensures type consistency across the full stack, while the storage abstraction allows for easy switching between different database implementations.
