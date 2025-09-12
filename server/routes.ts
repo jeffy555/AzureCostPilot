@@ -229,6 +229,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Unified total MTD (USD) across providers
+  app.get("/api/total/mtd-usd", async (_req, res) => {
+    try {
+      const now = new Date();
+      const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+      const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+
+      // 1) Azure from stored cost_data (already normalized to USD)
+      const azureData = await storage.getCostData({ dateFrom: start, dateTo: end });
+      const azure = azureData
+        .filter(e => (e.provider || '').toLowerCase() === 'azure')
+        .reduce((s, e) => s + (e.monthlyCost ? parseFloat(e.monthlyCost as string) : (e.dailyCost ? parseFloat(e.dailyCost as string) : 0)), 0);
+
+      // 2) AWS and GCP via their summary endpoints (authoritative)
+      const port = parseInt(process.env.PORT || '9003', 10);
+      const base = `http://127.0.0.1:${port}`;
+      const [awsResp, gcpResp] = await Promise.all([
+        fetch(`${base}/api/aws/mtd-summary`).then(r => r.json()).catch(() => ({ total: 0 })),
+        fetch(`${base}/api/gcp/mtd-summary`).then(r => r.json()).catch(() => ({ total: 0 })),
+      ]);
+      const aws = Number(awsResp?.total || 0);
+      const gcp = Number(gcpResp?.total || 0);
+
+      // 3) MongoDB Atlas MTD via CE cache or fallback to stored entries
+      let mongodb = 0;
+      try {
+        // Try CE cache by reading the latest stored MongoDB monthly costs first
+        const mongoData = azureData.filter(e => (e.provider || '').toLowerCase() === 'mongodb');
+        const mongoStored = mongoData.reduce((s, e) => s + (e.monthlyCost ? parseFloat(e.monthlyCost as string) : (e.dailyCost ? parseFloat(e.dailyCost as string) : 0)), 0);
+        if (mongoStored > 0) {
+          mongodb = mongoStored;
+        } else {
+          // Lightweight CE check using existing endpoints with short polling
+          const init = await fetch(`${base}/api/mongodb/ce-init`, { method: 'POST' }).then(r => r.json()).catch(() => null as any);
+          if (init && init.token) {
+            for (let i = 0; i < 3; i++) {
+              const u = await fetch(`${base}/api/mongodb/ce-usage/${init.token}`).then(r => r.json()).catch(() => null as any);
+              const amt = Number(u?.usageAmount || 0);
+              if (amt > 0) { mongodb = amt; break; }
+              await new Promise(r => setTimeout(r, 400));
+            }
+          }
+        }
+      } catch {}
+
+      const total = azure + aws + mongodb + gcp;
+      return res.json({ currency: 'USD', azure, aws, mongodb, gcp, total, start: start.toISOString().slice(0,10), end: end.toISOString().slice(0,10) });
+    } catch (err) {
+      return res.status(500).json({ message: 'Failed to compute total MTD (USD)' });
+    }
+  });
+
   app.post("/api/refresh-cost-data", async (req, res) => {
     try {
       const spns = await storage.getServicePrincipals();
@@ -692,22 +744,20 @@ async function fetchAzureCostData(spn: any): Promise<void> {
         const day = parseInt(dateStr.substring(6, 8));
         const parsedDate = new Date(year, month, day);
         
-        // Check what currency Azure is actually returning and convert appropriately
-        const rawCost = cost as number;
-        let dailyCost: number;
-        
-        if (currency === 'USD') {
-          // Convert USD to INR using current rate (around 83.5)
-          dailyCost = rawCost * 83.5;
-          console.log(`💱 USD to INR conversion: ${rawCost} USD → ${dailyCost} INR`);
-        } else if (currency === 'INR') {
-          // Already in INR, no conversion needed
-          dailyCost = rawCost;
-          console.log(`💰 Already in INR: ${dailyCost} INR`);
+        // Normalize Azure costs to USD for storage
+        const rawCost = Number(cost);
+        let dailyCostUsd = rawCost;
+        const inrToUsd = Number(process.env.AZURE_INR_TO_USD_RATE || "0.012" /* ~1/83.5 */);
+        if ((currency as string) === 'INR') {
+          dailyCostUsd = rawCost * inrToUsd;
+          console.log(`💱 INR→USD: ${rawCost} INR → ${dailyCostUsd} USD (rate ${inrToUsd})`);
+        } else if ((currency as string) === 'USD') {
+          dailyCostUsd = rawCost;
+          console.log(`💵 Already in USD: ${dailyCostUsd} USD`);
         } else {
-          // Unknown currency, assume USD and convert
-          dailyCost = rawCost * 83.5;
-          console.log(`❓ Unknown currency ${currency}, assuming USD: ${rawCost} → ${dailyCost} INR`);
+          // Fallback: treat as INR and convert
+          dailyCostUsd = rawCost * inrToUsd;
+          console.log(`❓ Unknown currency ${currency}, converting as INR → USD: ${dailyCostUsd} USD`);
         }
         
         const costEntry = {
@@ -717,9 +767,9 @@ async function fetchAzureCostData(spn: any): Promise<void> {
           resourceGroup: resourceGroup as string,
           serviceName: serviceName as string,
           location: location as string,
-          dailyCost: dailyCost.toFixed(2),
-          monthlyCost: null, // Will calculate actual monthly total in summary
-          currency: "INR", // Converted to INR
+          dailyCost: dailyCostUsd.toFixed(2),
+          monthlyCost: null, // Monthly totals are computed in summaries
+          currency: "USD",
           metadata: null
         };
         
@@ -1185,18 +1235,17 @@ async function updateCostSummary(): Promise<void> {
       return;
     }
     
-    // Calculate summary metrics - prefer monthlyCost when present, else sum dailyCost
-    // Compute totals per provider and preserve currency for MongoDB (USD)
-    let totalMonthlyCost = 0;
-    const mongoMonthlyUsd = costData
-      .filter(e => e.provider === 'mongodb')
-      .reduce((sum, e) => sum + (e.monthlyCost ? parseFloat(e.monthlyCost) : (e.dailyCost ? parseFloat(e.dailyCost) * 30 : 0)), 0);
-    const nonMongoMonthlyInr = costData
-      .filter(e => e.provider !== 'mongodb')
-      .reduce((sum, e) => sum + (e.monthlyCost ? parseFloat(e.monthlyCost) : (e.dailyCost ? parseFloat(e.dailyCost) : 0)), 0);
+    // Calculate summary metrics in USD uniformly
+    const providerMonthlyUsd = costData.reduce((acc: Record<string, number>, e) => {
+      const daily = e.dailyCost ? parseFloat(e.dailyCost) : 0;
+      const monthly = e.monthlyCost ? parseFloat(e.monthlyCost) : 0;
+      const amount = monthly || daily; // daily already normalized to USD above for Azure; others use their native USD
+      const key = e.provider || 'unknown';
+      acc[key] = (acc[key] || 0) + amount;
+      return acc;
+    }, {} as Record<string, number>);
 
-    // For backward compatibility, keep totalMonthlyCost as INR (non-Mongo only)
-    totalMonthlyCost = nonMongoMonthlyInr;
+    const totalMonthlyCost = Object.values(providerMonthlyUsd).reduce((s, n) => s + n, 0);
     
     // Get today's costs only
     const today = new Date();
@@ -1209,12 +1258,12 @@ async function updateCostSummary(): Promise<void> {
         return sum + (parseFloat(entry.dailyCost || "0"));
       }, 0);
     
-    const activeResources = new Set(costData.map(entry => entry.resourceGroup)).size;
+    const activeResources = new Set(costData.map(entry => entry.resourceGroup || entry.serviceName || entry.clusterName)).size;
     
     // Service breakdown - sum daily costs by service
     const serviceBreakdown: Record<string, number> = {};
     costData.forEach(entry => {
-      const service = entry.serviceName || "Unknown";
+      const service = entry.serviceName || entry.clusterName || "Unknown";
       const cost = parseFloat(entry.dailyCost || "0");
       serviceBreakdown[service] = (serviceBreakdown[service] || 0) + cost;
     });

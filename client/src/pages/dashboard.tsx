@@ -9,6 +9,7 @@ import MongoDBResourceTable from "@/components/dashboard/mongodb-resource-table"
 import AzureView from "@/components/dashboard/azure-view";
 import AWSView from "@/components/dashboard/aws-view";
 import GCPView from "@/components/dashboard/gcp-view";
+import TotalView from "@/components/dashboard/total-view";
 import MongoDBView from "@/components/dashboard/mongodb-view";
 import SPNManagement from "@/components/dashboard/spn-management";
 import LoadingState from "@/components/dashboard/loading-state";
@@ -19,7 +20,7 @@ export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState("dashboard");
   const [selectedProvider, setSelectedProvider] = useState<"all" | "azure" | "mongodb">("all");
-  const [currentView, setCurrentView] = useState<"dashboard" | "azure" | "mongodb" | "aws" | "gcp">("dashboard");
+  const [currentView, setCurrentView] = useState<"dashboard" | "azure" | "mongodb" | "aws" | "gcp" | "total">("dashboard");
   
   const { 
     costSummary, 
@@ -192,9 +193,14 @@ export default function Dashboard() {
                   <AWSView />
                 )}
 
-                {/* Dedicated GCP View (placeholder) */}
+                {/* Dedicated GCP View */}
                 {activeSection === "dashboard" && currentView === "gcp" && (
                   <GCPView />
+                )}
+
+                {/* Total View */}
+                {activeSection === "dashboard" && currentView === "total" && (
+                  <TotalView />
                 )}
 
                 {/* Dedicated MongoDB View */}

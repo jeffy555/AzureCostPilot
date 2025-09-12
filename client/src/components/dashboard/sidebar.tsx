@@ -5,7 +5,7 @@ interface SidebarProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
   onProviderSelect?: (provider: "all" | "azure" | "mongodb") => void;
-  onViewChange?: (view: "dashboard" | "azure" | "mongodb" | "aws" | "gcp") => void;
+  onViewChange?: (view: "dashboard" | "azure" | "mongodb" | "aws" | "gcp" | "total") => void;
 }
 
 export default function Sidebar({ collapsed, activeSection, onSectionChange, onProviderSelect, onViewChange }: SidebarProps) {
@@ -58,6 +58,13 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
   ];
 
   const navigationItems = [
+    {
+      id: "total",
+      name: "Total Cost",
+      icon: "fas fa-chart-pie",
+      section: "dashboard",
+      view: "total"
+    },
     { 
       id: "settings", 
       name: "Settings", 
@@ -177,7 +184,13 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
               {navigationItems.map((item) => (
                 <li key={item.id}>
                   <button
-                    onClick={() => onSectionChange(item.section)}
+                    onClick={() => {
+                      onSectionChange(item.section);
+                      // Navigate to a dashboard sub-view if provided
+                      if ((item as any).view && onViewChange && item.section === "dashboard") {
+                        onViewChange((item as any).view);
+                      }
+                    }}
                     className={cn(
                       "w-full flex items-center space-x-3 px-3 py-2 rounded-md text-left",
                       activeSection === item.section

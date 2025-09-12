@@ -131,8 +131,8 @@ export default function AzureView({ costData = [], costSummary, onRefresh, isRef
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Monthly Cost</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">₹{azureTotalCost.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">Actual Azure cost</p>
+            <div className="text-2xl font-bold text-blue-600">${azureTotalCost.toFixed(2)}</div>
+            <p className="text-xs text-muted-foreground">Actual Azure cost (USD)</p>
           </CardContent>
         </Card>
         
@@ -141,8 +141,8 @@ export default function AzureView({ costData = [], costSummary, onRefresh, isRef
             <CardTitle className="text-sm font-medium text-muted-foreground">Daily Cost</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">₹{(azureTotalCost / 30).toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">Average daily spending</p>
+            <div className="text-2xl font-bold text-green-600">${(azureTotalCost / 30).toFixed(2)}</div>
+            <p className="text-xs text-muted-foreground">Average daily spending (USD)</p>
           </CardContent>
         </Card>
         
@@ -268,10 +268,10 @@ export default function AzureView({ costData = [], costSummary, onRefresh, isRef
                         {row.locationLabel}
                       </TableCell>
                       <TableCell className="text-right font-medium text-foreground">
-                        ₹{(row.monthlyTotal / Math.max(1, row.daysCount)).toFixed(2)}
+                        ${ (row.monthlyTotal / Math.max(1, row.daysCount)).toFixed(2) }
                       </TableCell>
                       <TableCell className="text-right text-muted-foreground">
-                        ₹{row.monthlyTotal.toFixed(2)}
+                        ${ row.monthlyTotal.toFixed(2) }
                       </TableCell>
                     </TableRow>
                   ))
