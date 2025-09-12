@@ -4,6 +4,12 @@ import type { Express } from "express";
 import { BigQuery } from "@google-cloud/bigquery";
 import fs from "fs";
 
+// Simple in-memory cache for GCP endpoints
+type CacheEntry<T> = { data: T; expiry: number } | null;
+const FIVE_MINUTES_MS = 5 * 60 * 1000;
+const gcpSummaryCache: { entry: CacheEntry<{ currency: string; start: string; end: string; total: number; avgDaily: number }>; } = { entry: null };
+const gcpServicesCache: { entry: CacheEntry<{ currency: string; start: string; end: string; total: number; services: Array<{ service: string; amount: number }> }>; } = { entry: null };
+
 function getBigQueryClient() {
   const keyFilePath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
   const keyJson = process.env.GCP_SERVICE_ACCOUNT_JSON;
@@ -66,6 +72,11 @@ export async function registerGcpRoutes(app: Express) {
       // eslint-disable-next-line no-console
       console.log("[GCP] mtd-summary env:", { project, dataset, table, tableRef });
 
+      // Serve from cache if valid
+      if (gcpSummaryCache.entry && gcpSummaryCache.entry.expiry > Date.now()) {
+        return res.json({ ...gcpSummaryCache.entry.data, cached: true });
+      }
+
       const query = `
         SELECT
           SUM(cost) AS total
@@ -79,8 +90,14 @@ export async function registerGcpRoutes(app: Express) {
       });
       const total = Number(rows?.[0]?.total || 0);
       const days = Math.max(1, Math.floor((Date.parse(end) - Date.parse(start)) / 86400000));
-      return res.json({ currency: "USD", start, end, total, avgDaily: total / days });
+      const payload = { currency: "USD", start, end, total, avgDaily: total / days };
+      gcpSummaryCache.entry = { data: payload, expiry: Date.now() + FIVE_MINUTES_MS };
+      return res.json(payload);
     } catch (err) {
+      // If we have any cached data, serve it as stale to keep UI stable
+      if (gcpSummaryCache.entry) {
+        return res.json({ ...gcpSummaryCache.entry.data, cached: true, stale: true });
+      }
       return res.status(500).json({ message: "Failed to fetch GCP MTD summary", error: err instanceof Error ? err.message : String(err) });
     }
   });
@@ -100,6 +117,11 @@ export async function registerGcpRoutes(app: Express) {
       // eslint-disable-next-line no-console
       console.log("[GCP] mtd-services env:", { project, dataset, table, tableRef });
 
+      // Serve from cache if valid
+      if (gcpServicesCache.entry && gcpServicesCache.entry.expiry > Date.now()) {
+        return res.json({ ...gcpServicesCache.entry.data, cached: true });
+      }
+
       const query = `
         SELECT service.description AS service, SUM(cost) AS amount
         FROM \`${tableRef}\`
@@ -111,8 +133,13 @@ export async function registerGcpRoutes(app: Express) {
       const [rows] = await bq.query({ query, params: { start: `${start} 00:00:00+00`, end: `${end} 00:00:00+00` } });
       const services = rows.map((r: any) => ({ service: r.service || "Unknown", amount: Number(r.amount || 0) }));
       const total = services.reduce((s: number, r: any) => s + r.amount, 0);
-      return res.json({ currency: "USD", start, end, total, services });
+      const payload = { currency: "USD", start, end, total, services };
+      gcpServicesCache.entry = { data: payload, expiry: Date.now() + FIVE_MINUTES_MS };
+      return res.json(payload);
     } catch (err) {
+      if (gcpServicesCache.entry) {
+        return res.json({ ...gcpServicesCache.entry.data, cached: true, stale: true });
+      }
       return res.status(500).json({ message: "Failed to fetch GCP MTD services", error: err instanceof Error ? err.message : String(err) });
     }
   });

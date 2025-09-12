@@ -30,17 +30,24 @@ export default function GCPView() {
   useEffect(() => {
     let cancelled = false;
     const fetchSummary = async () => {
-      try {
-        const res = await fetch("/api/gcp/mtd-summary", { credentials: "include" });
-        const json: GcpSummaryResponse = await res.json();
-        if (!res.ok) throw new Error((json as any)?.message || "GCP summary error");
-        if (!cancelled) {
-          setMtdUSD(Number(json.total || 0));
-          setAvgDailyUSD(Number(json.avgDaily || 0));
+      let lastErr: any = null;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const res = await fetch("/api/gcp/mtd-summary", { credentials: "include" });
+          const json: GcpSummaryResponse = await res.json();
+          if (!res.ok) throw new Error((json as any)?.message || "GCP summary error");
+          if (!cancelled) {
+            setMtdUSD(Number(json.total || 0));
+            setAvgDailyUSD(Number(json.avgDaily || 0));
+            setError(null);
+          }
+          return;
+        } catch (e: any) {
+          lastErr = e;
+          await new Promise(r => setTimeout(r, 600));
         }
-      } catch (e: any) {
-        if (!cancelled) setError(e?.message || "Failed to load GCP summary");
       }
+      if (!cancelled) setError(lastErr?.message || "Failed to load GCP summary");
     };
     const fetchServices = async () => {
       try {
