@@ -5,7 +5,7 @@ interface SidebarProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
   onProviderSelect?: (provider: "all" | "azure" | "mongodb") => void;
-  onViewChange?: (view: "dashboard" | "azure" | "mongodb" | "aws" | "gcp" | "total") => void;
+  onViewChange?: (view: "dashboard" | "azure" | "mongodb" | "aws" | "gcp" | "total" | "agent" | "openai") => void;
 }
 
 export default function Sidebar({ collapsed, activeSection, onSectionChange, onProviderSelect, onViewChange }: SidebarProps) {
@@ -45,8 +45,8 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
       id: "openai", 
       name: "OpenAI", 
       icon: "fas fa-brain", 
-      status: "coming-soon",
-      active: false 
+      status: "connected",
+      active: true 
     },
     { 
       id: "anthropic", 
@@ -64,6 +64,13 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
       icon: "fas fa-chart-pie",
       section: "dashboard",
       view: "total"
+    },
+    {
+      id: "agent",
+      name: "Let Me Help",
+      icon: "fas fa-hands-helping",
+      section: "dashboard",
+      view: "agent"
     },
     { 
       id: "settings", 
@@ -151,6 +158,10 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
                       if (provider.id === "mongodb" && onViewChange) {
                         console.log("🔥 MONGODB SIDEBAR BUTTON CLICKED!");
                         onViewChange("mongodb");
+                      }
+                      if (provider.id === "openai" && onViewChange) {
+                        console.log("🤖 OPENAI SIDEBAR BUTTON CLICKED!");
+                        onViewChange("openai");
                       }
                     }}
                     className={cn(

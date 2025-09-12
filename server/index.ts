@@ -4,6 +4,8 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { registerAwsRoutes } from "./aws";
 import { registerGcpRoutes } from "./gcp";
+import { registerAgentRoutes } from "./agent";
+import { registerOpenAiRoutes } from "./openai";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
@@ -44,6 +46,8 @@ app.use((req, res, next) => {
   const server = await registerRoutes(app);
   await registerAwsRoutes(app);
   await registerGcpRoutes(app);
+  await registerAgentRoutes(app);
+  await registerOpenAiRoutes(app);
   // Total routes come from routes.ts aggregation endpoint
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
