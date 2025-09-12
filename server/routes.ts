@@ -548,6 +548,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // (moved AWS routes to server/aws.ts)
+
   // MongoDB clusters list (project-scoped)
   app.get("/api/mongodb/clusters", async (_req, res) => {
     try {

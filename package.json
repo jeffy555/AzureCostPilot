@@ -11,9 +11,12 @@
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
+    "@aws-sdk/client-cost-explorer": "^3.883.0",
+    "@aws-sdk/client-sts": "^3.883.0",
     "@azure/arm-consumption": "^9.2.0",
     "@azure/arm-costmanagement": "^1.0.0-beta.1",
     "@azure/identity": "^4.11.1",
+    "@google-cloud/bigquery": "^8.1.1",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@neondatabase/serverless": "^0.10.4",

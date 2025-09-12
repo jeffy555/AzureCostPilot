@@ -5,7 +5,7 @@ interface SidebarProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
   onProviderSelect?: (provider: "all" | "azure" | "mongodb") => void;
-  onViewChange?: (view: "dashboard" | "azure" | "mongodb") => void;
+  onViewChange?: (view: "dashboard" | "azure" | "mongodb" | "aws" | "gcp") => void;
 }
 
 export default function Sidebar({ collapsed, activeSection, onSectionChange, onProviderSelect, onViewChange }: SidebarProps) {
@@ -21,15 +21,15 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
       id: "aws", 
       name: "AWS", 
       icon: "fab fa-aws", 
-      status: "coming-soon",
-      active: false 
+      status: "connected",
+      active: true 
     },
     { 
       id: "gcp", 
       name: "Google Cloud", 
       icon: "fab fa-google", 
-      status: "coming-soon",
-      active: false 
+      status: "connected",
+      active: true 
     },
   ];
 
@@ -95,6 +95,14 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
                       if (provider.id === "azure" && onViewChange) {
                         console.log("🔥 AZURE SIDEBAR BUTTON CLICKED!");
                         onViewChange("azure");
+                      }
+                      if (provider.id === "aws" && onViewChange) {
+                        console.log("🔥 AWS SIDEBAR BUTTON CLICKED!");
+                        onViewChange("aws");
+                      }
+                      if (provider.id === "gcp" && onViewChange) {
+                        console.log("🔥 GCP SIDEBAR BUTTON CLICKED!");
+                        onViewChange("gcp");
                       }
                     }}
                     className={cn(

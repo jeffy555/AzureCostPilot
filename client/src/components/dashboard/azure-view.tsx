@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Download, Layers, RefreshCw } from "lucide-react";
+import { ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import type { CostData, CostSummary } from "@shared/schema";
 
 interface AzureViewProps {
@@ -26,14 +27,49 @@ export default function AzureView({ costData = [], costSummary, onRefresh, isRef
     item.serviceName !== undefined
   );
 
-  // Apply search filter
-  const filteredData = azureData.filter(item =>
-    item.resourceGroup?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.serviceName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.location?.toLowerCase().includes(searchTerm.toLowerCase())
+  // Aggregate by unique resource (resourceGroup + serviceName). Sum daily costs across days
+  type AggRow = {
+    resourceGroup: string;
+    serviceName: string;
+    locationLabel: string;
+    monthlyTotal: number; // sum of daily costs across the period
+    daysCount: number;
+  };
+  const keyToAgg: Record<string, AggRow> = {};
+  const dateSeenByKey: Record<string, Set<string>> = {};
+  for (const item of azureData) {
+    const rg = item.resourceGroup || "Unknown";
+    const svc = item.serviceName || "Unknown";
+    const loc = item.location || "Unknown";
+    const key = `${rg}||${svc}`;
+    if (!keyToAgg[key]) {
+      keyToAgg[key] = { resourceGroup: rg, serviceName: svc, locationLabel: loc, monthlyTotal: 0, daysCount: 0 };
+      dateSeenByKey[key] = new Set<string>();
+    }
+    // track multiple locations
+    if (keyToAgg[key].locationLabel !== loc) {
+      keyToAgg[key].locationLabel = "Multiple";
+    }
+    const cost = parseFloat(item.dailyCost || "0");
+    keyToAgg[key].monthlyTotal += isFinite(cost) ? cost : 0;
+    // derive a day key from item.date
+    const dayKey = new Date(item.date as unknown as string).toISOString().slice(0,10);
+    dateSeenByKey[key].add(dayKey);
+  }
+  for (const k of Object.keys(keyToAgg)) {
+    keyToAgg[k].daysCount = dateSeenByKey[k].size || 1;
+  }
+
+  const aggregatedRows: AggRow[] = Object.values(keyToAgg);
+
+  // Apply search filter on aggregated rows
+  const filteredData = aggregatedRows.filter(row =>
+    row.resourceGroup.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.locationLabel.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Paginate data
+  // Paginate aggregated data
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
@@ -52,6 +88,16 @@ export default function AzureView({ costData = [], costSummary, onRefresh, isRef
   const azureTotalCost = azureData.reduce((sum, item) => sum + parseFloat(item.dailyCost || "0"), 0);
   const azureServiceCount = new Set(azureData.map(item => item.serviceName)).size;
   const azureResourceGroups = new Set(azureData.map(item => item.resourceGroup)).size;
+
+  // Service breakdown (sum of daily cost by service for current dataset)
+  const serviceTotals: Record<string, number> = {};
+  for (const item of azureData) {
+    const key = item.serviceName || "Other";
+    serviceTotals[key] = (serviceTotals[key] || 0) + parseFloat(item.dailyCost || "0");
+  }
+  const serviceData = Object.entries(serviceTotals)
+    .sort((a,b) => b[1]-a[1])
+    .map(([name, value]) => ({ name, value, color: getServiceColor(name) }));
 
   return (
     <div className="space-y-6">
@@ -121,6 +167,46 @@ export default function AzureView({ costData = [], costSummary, onRefresh, isRef
         </Card>
       </div>
 
+      {/* Azure Service Breakdown Pie */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Service Breakdown</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64">
+            {serviceData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={serviceData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={85}
+                    innerRadius={25}
+                    dataKey="value"
+                    label={({ percent }) => percent && percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : ''}
+                    labelLine={false}
+                    stroke="#ffffff"
+                    strokeWidth={2}
+                  >
+                    {serviceData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Legend verticalAlign="bottom" height={50} iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                No service data available
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Azure Cost Table */}
       <Card data-testid="azure-cost-table">
         <CardHeader>
@@ -154,38 +240,38 @@ export default function AzureView({ costData = [], costSummary, onRefresh, isRef
                   <TableHead className="text-left">Resource Group</TableHead>
                   <TableHead className="text-left">Service</TableHead>
                   <TableHead className="text-left">Location</TableHead>
-                  <TableHead className="text-right">Daily Cost</TableHead>
-                  <TableHead className="text-right">Monthly Est.</TableHead>
+                  <TableHead className="text-right">Avg Daily Cost</TableHead>
+                  <TableHead className="text-right">Monthly Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedData.length > 0 ? (
-                  paginatedData.map((item, index) => (
-                    <TableRow key={`${item.id || index}`} className="hover:bg-muted/50">
+                  paginatedData.map((row, index) => (
+                    <TableRow key={`${row.resourceGroup}-${row.serviceName}-${index}`} className="hover:bg-muted/50">
                       <TableCell>
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
                             <Layers className="text-blue-600 h-4 w-4" />
                           </div>
                           <div>
-                            <p className="font-medium text-foreground">{item.resourceGroup}</p>
+                            <p className="font-medium text-foreground">{row.resourceGroup}</p>
                             <p className="text-sm text-muted-foreground">Azure Resource</p>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={getServiceBadgeColor(item.serviceName || "")}>
-                          {item.serviceName}
+                        <Badge className={getServiceBadgeColor(row.serviceName || "")}>
+                          {row.serviceName}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {item.location}
+                        {row.locationLabel}
                       </TableCell>
                       <TableCell className="text-right font-medium text-foreground">
-                        ₹{item.dailyCost}
+                        ₹{(row.monthlyTotal / Math.max(1, row.daysCount)).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-right text-muted-foreground">
-                        ₹{item.monthlyCost || (parseFloat(item.dailyCost || "0") * 30).toFixed(2)}
+                        ₹{row.monthlyTotal.toFixed(2)}
                       </TableCell>
                     </TableRow>
                   ))
@@ -231,4 +317,20 @@ export default function AzureView({ costData = [], costSummary, onRefresh, isRef
       </Card>
     </div>
   );
+}
+
+function getServiceColor(serviceName: string): string {
+  const colors = {
+    "Azure App Service": "#3B82F6",
+    "Storage": "#10B981",
+    "Log Analytics": "#F59E0B",
+    "SQL Database": "#8B5CF6",
+    "Virtual Machines": "#EF4444",
+    "Bandwidth": "#06B6D4",
+    "Container Registry": "#EC4899",
+    "Key Vault": "#84CC16",
+    "App Service": "#3B82F6",
+    "Other": "#6B7280"
+  } as Record<string, string>;
+  return colors[serviceName] || colors["Other"];
 }
