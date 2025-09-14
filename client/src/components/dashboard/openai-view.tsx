@@ -1,43 +1,46 @@
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-type UsageList = {
-  object: string;
-  data: any[];
-  ft_data?: any[];
-  dalle_api_data?: any[];
-  whisper_api_data?: any[];
-  tts_api_data?: any[];
-  assistant_code_interpreter_data?: any[];
-  retrieval_storage_data?: any[];
+// Summary type (monthly MTD)
+type UsageSummary = {
+  totalTokens?: number;
+  totalRequests?: number;
+  start_date?: string;
+  end_date?: string;
 };
 
 export default function OpenAIView() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [usage, setUsage] = useState<UsageList | null>(null);
+  const [summary, setSummary] = useState<UsageSummary | null>(null);
 
-  const fetchUsage = async (params?: { start?: string; end?: string }) => {
+  const fetchSummary = async () => {
     setLoading(true);
     setError(null);
     try {
-      const qs = params?.start || params?.end
-        ? `?start_date=${encodeURIComponent(params.start || "")}&end_date=${encodeURIComponent(params.end || "")}`
-        : "";
-      const res = await fetch(`/api/openai/usage${qs}`, { credentials: "include" });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.message || json?.error?.message || "Failed to fetch OpenAI usage");
-      setUsage(json);
+      const res = await fetch(`/api/openai/usage/summary`, { 
+        credentials: "include",
+        headers: { "Accept": "application/json" }
+      });
+      const text = await res.text();
+      let json: any = null;
+      try { json = JSON.parse(text); } catch { json = null; }
+      if (!res.ok || json == null) {
+        throw new Error((json && (json.message || json?.error?.message)) || `Failed to fetch OpenAI usage summary (${res.status}) ${text.slice(0, 120)}`);
+      }
+      setSummary(json);
     } catch (e: any) {
-      setError(e?.message || "Failed to fetch OpenAI usage");
+      setError(e?.message || "Failed to fetch OpenAI usage summary");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsage();
+    fetchSummary();
   }, []);
+
+  const int = (n?: number) => (typeof n === "number" ? n.toLocaleString() : "0");
 
   return (
     <div className="space-y-6">
@@ -49,17 +52,8 @@ export default function OpenAIView() {
           <div>
             <div className="text-sm text-muted-foreground mb-1">SaaS Providers &gt; OpenAI</div>
             <h1 className="text-2xl font-bold text-foreground">OpenAI Usage</h1>
-            <p className="text-muted-foreground">Shows your account usage for the selected period</p>
+            <p className="text-muted-foreground">Month-to-date usage totals</p>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="btn btn-secondary px-3 py-2 rounded-md text-sm" onClick={() => fetchUsage()}>Today</button>
-          <button className="btn btn-secondary px-3 py-2 rounded-md text-sm" onClick={() => {
-            const now = new Date();
-            const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString().slice(0,10);
-            const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth()+1, 1)).toISOString().slice(0,10);
-            fetchUsage({ start, end });
-          }}>This Month</button>
         </div>
       </div>
 
@@ -72,34 +66,29 @@ export default function OpenAIView() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>Summary</CardTitle>
+            <CardTitle>Total requests</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="text-muted-foreground">Loading…</div>
             ) : (
-              <div className="text-sm text-foreground space-y-2">
-                <div><span className="text-muted-foreground">Object:</span> {usage?.object || "—"}</div>
-                <div><span className="text-muted-foreground">Items:</span> {usage?.data?.length ?? 0}</div>
-              </div>
+              <div className="text-3xl font-semibold text-foreground">{int(summary?.totalRequests)}</div>
             )}
+            <div className="text-xs text-muted-foreground mt-1">{summary?.start_date && summary?.end_date ? `${summary.start_date} → ${summary.end_date}` : ""}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent Usage Items</CardTitle>
+            <CardTitle>Total tokens</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="text-muted-foreground">Loading…</div>
-            ) : usage && usage.data && usage.data.length > 0 ? (
-              <div className="max-h-64 overflow-auto text-sm">
-                <pre className="whitespace-pre-wrap break-words text-xs bg-muted p-3 rounded-md">{JSON.stringify(usage.data.slice(0, 20), null, 2)}</pre>
-              </div>
             ) : (
-              <div className="text-muted-foreground">No usage for the selected period.</div>
+              <div className="text-3xl font-semibold text-foreground">{int(summary?.totalTokens)}</div>
             )}
+            <div className="text-xs text-muted-foreground mt-1">{summary?.start_date && summary?.end_date ? `${summary.start_date} → ${summary.end_date}` : ""}</div>
           </CardContent>
         </Card>
       </div>

@@ -5,7 +5,7 @@ interface SidebarProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
   onProviderSelect?: (provider: "all" | "azure" | "mongodb") => void;
-  onViewChange?: (view: "dashboard" | "azure" | "mongodb" | "aws" | "gcp" | "total" | "agent" | "openai") => void;
+  onViewChange?: (view: "dashboard" | "azure" | "mongodb" | "aws" | "gcp" | "total" | "agent" | "replit") => void;
 }
 
 export default function Sidebar({ collapsed, activeSection, onSectionChange, onProviderSelect, onViewChange }: SidebarProps) {
@@ -41,12 +41,12 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
       status: "connected",
       active: true 
     },
-    { 
-      id: "openai", 
-      name: "OpenAI", 
-      icon: "fas fa-brain", 
+    {
+      id: "replit",
+      name: "Replit",
+      icon: "fas fa-terminal",
       status: "connected",
-      active: true 
+      active: true
     },
     { 
       id: "anthropic", 
@@ -71,18 +71,6 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
       icon: "fas fa-hands-helping",
       section: "dashboard",
       view: "agent"
-    },
-    { 
-      id: "settings", 
-      name: "Settings", 
-      icon: "fas fa-cog",
-      section: "settings"
-    },
-    { 
-      id: "spn-management", 
-      name: "SPN Management", 
-      icon: "fas fa-key",
-      section: "spn-management"
     },
   ];
 
@@ -159,10 +147,11 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
                         console.log("🔥 MONGODB SIDEBAR BUTTON CLICKED!");
                         onViewChange("mongodb");
                       }
-                      if (provider.id === "openai" && onViewChange) {
-                        console.log("🤖 OPENAI SIDEBAR BUTTON CLICKED!");
-                        onViewChange("openai");
+                      if (provider.id === "replit" && onViewChange) {
+                        console.log("⚙️ REPLIT SIDEBAR BUTTON CLICKED!");
+                        onViewChange("replit" as any);
                       }
+                      // OpenAI removed
                     }}
                     className={cn(
                       "w-full flex items-center space-x-3 px-3 py-2 rounded-md text-left",

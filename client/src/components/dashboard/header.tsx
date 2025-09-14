@@ -49,14 +49,7 @@ export default function Header({ onToggleSidebar, onRefresh, lastUpdated, isRefr
             <span className="hidden sm:inline">Refresh</span>
           </Button>
           
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-              <User className="text-muted-foreground text-sm" />
-            </div>
-            <span className="hidden md:inline text-sm font-medium" data-testid="text-username">
-              Admin User
-            </span>
-          </div>
+          {/* User section removed for mockup (no login) */}
         </div>
       </div>
     </header>

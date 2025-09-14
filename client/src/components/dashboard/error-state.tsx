@@ -36,9 +36,6 @@ export default function ErrorState({ error, onRetry }: ErrorStateProps) {
           <Button onClick={onRetry} data-testid="button-retry">
             Retry
           </Button>
-          <Button variant="outline" data-testid="button-check-settings">
-            Check SPN Settings
-          </Button>
         </div>
       </CardContent>
     </Card>

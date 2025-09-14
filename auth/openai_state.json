@@ -1,0 +1,92 @@
+{
+  "cookies": [
+    {
+      "name": "__cf_bm",
+      "value": "IINJ15y8HFVhadtMT3hRdsiY7IcKkFUB7e6gUTjO4Nw-1757823592-1.0.1.1-vxWle0Y_GKyY29Oy.nMzrGVG9TZL_NO7rQAVYOhSEeJlsoihjCZK1S7QXdQNf9h09CN3jFkogtV50i_yaGUPXhwdfM8e7SMDs1D_B9RXZp4",
+      "domain": ".openai.com",
+      "path": "/",
+      "expires": 1757825392.442608,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cfuvid",
+      "value": "QuXwTBQxMuRqERYZrdbyG2Yw5ih5Gl2H2LRjzVL01Kk-1757823592472-0.0.1.1-604800000",
+      "domain": ".openai.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "cf_clearance",
+      "value": "..BSG9X4V8RKNlZPkwpKemT7CtgvSKwdGZ6MOtdJASQ-1757823594-1.2.1.1-Z1ZdWoS6mSvOETN77KhaSxF_tQ.E5x.ofQQb7PZj0s9VDuVs2egV6K0qqOclKbsNMEK0PCdZLiE_OBB2Km1fbluRFDi8LMtCFXXxZjmoNljwcdkoozydZxf5P6DfWgLilo0xdwsKQABgAQyRx9fOLyX5FH2MoWEuqLgaodzPxFr7b1AgapPxMOlXw6ZieqyB_floP_OjB7_rtumvagzRTBQowHzUG5tl4YK_RlDgGV4",
+      "domain": ".openai.com",
+      "path": "/",
+      "expires": 1789359594.159972,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None",
+      "partitionKey": "https://openai.com",
+      "_crHasCrossSiteAncestor": false
+    },
+    {
+      "name": "oai-did",
+      "value": "5044a2b5-01ed-4712-81ad-34f17202627b",
+      "domain": ".openai.com",
+      "path": "/",
+      "expires": 1789359594,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_dd_s",
+      "value": "logs=1&id=8fd507f8-4229-405b-bec1-f3416d58a63b&created=1757823593194&expire=1757824496593",
+      "domain": "platform.openai.com",
+      "path": "/",
+      "expires": 1757824497,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "cf_chl_rc_m",
+      "value": "1",
+      "domain": "platform.openai.com",
+      "path": "/",
+      "expires": 1757827207,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None",
+      "partitionKey": "https://openai.com",
+      "_crHasCrossSiteAncestor": false
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://platform.openai.com",
+      "localStorage": [
+        {
+          "name": "oai-did",
+          "value": "\"5044a2b5-01ed-4712-81ad-34f17202627b\""
+        },
+        {
+          "name": "__mpq_17a324b9a66d8716fc3273948551013c_ev",
+          "value": "[{\"id\":\"x30r827inhm8xfw9\",\"flushAfter\":1757823604729,\"payload\":{\"event\":\"page_view\",\"properties\":{\"$os\":\"Mac OS X\",\"$browser\":\"Chrome\",\"$current_url\":\"https://platform.openai.com/\",\"$browser_version\":140,\"$screen_height\":720,\"$screen_width\":1280,\"mp_lib\":\"web\",\"$lib_version\":\"2.65.0\",\"$insert_id\":\"o5mz135c4dgi7f94\",\"time\":1757823594.729,\"distinct_id\":\"$device:eace8666-ed68-4392-baf2-764a558bdc58\",\"$device_id\":\"eace8666-ed68-4392-baf2-764a558bdc58\",\"$initial_referrer\":\"$direct\",\"$initial_referring_domain\":\"$direct\",\"page\":\"/\",\"locationPathname\":\"/\",\"openai_app\":\"API\",\"orgId\":null,\"projectId\":null,\"token\":\"17a324b9a66d8716fc3273948551013c\",\"mp_sent_by_lib_version\":\"2.65.0\"}}},{\"id\":\"mlgqgdss9ix7fkrp\",\"flushAfter\":1757823606604,\"payload\":{\"event\":\"page_view\",\"properties\":{\"$os\":\"Mac OS X\",\"$browser\":\"Chrome\",\"$current_url\":\"https://platform.openai.com/docs/overview\",\"$browser_version\":140,\"$screen_height\":720,\"$screen_width\":1280,\"mp_lib\":\"web\",\"$lib_version\":\"2.65.0\",\"$insert_id\":\"fft7e4h28ua9vnz4\",\"time\":1757823596.604,\"distinct_id\":\"$device:eace8666-ed68-4392-baf2-764a558bdc58\",\"$device_id\":\"eace8666-ed68-4392-baf2-764a558bdc58\",\"$initial_referrer\":\"$direct\",\"$initial_referring_domain\":\"$direct\",\"page\":\"/docs/overview\",\"locationPathname\":\"/docs/overview\",\"openai_app\":\"API\",\"orgId\":null,\"projectId\":null,\"token\":\"17a324b9a66d8716fc3273948551013c\",\"mp_sent_by_lib_version\":\"2.65.0\"}}}]"
+        }
+      ]
+    },
+    {
+      "origin": "https://challenges.cloudflare.com",
+      "localStorage": [
+        {
+          "name": "cf.turnstile.u",
+          "value": "u2Csx0jg.tUys2SOhHJPewmTOaewMO62RUfpBDnFVSc-1757823598-1.3.1.1-IrlBikgBTX4H7e9QyxaJm8jUYF7DftJfyMTnMfpeCjlv3YfiNXYU7Rn0tMIJ31jkMEub1o5eyCqMPgMnphGN_w"
+        }
+      ]
+    }
+  ]
+}

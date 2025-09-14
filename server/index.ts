@@ -5,7 +5,8 @@ import { registerRoutes } from "./routes";
 import { registerAwsRoutes } from "./aws";
 import { registerGcpRoutes } from "./gcp";
 import { registerAgentRoutes } from "./agent";
-import { registerOpenAiRoutes } from "./openai";
+// OpenAI routes removed for now
+import { registerReplitRoutes } from "./replit";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
@@ -47,7 +48,7 @@ app.use((req, res, next) => {
   await registerAwsRoutes(app);
   await registerGcpRoutes(app);
   await registerAgentRoutes(app);
-  await registerOpenAiRoutes(app);
+  await registerReplitRoutes(app);
   // Total routes come from routes.ts aggregation endpoint
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
