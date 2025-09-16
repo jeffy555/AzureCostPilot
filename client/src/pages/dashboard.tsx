@@ -12,7 +12,9 @@ import GCPView from "@/components/dashboard/gcp-view";
 import TotalView from "@/components/dashboard/total-view";
 import MongoDBView from "@/components/dashboard/mongodb-view";
 import AgentView from "@/components/dashboard/agent-view";
+import OpenAIView from "@/components/dashboard/openai-view";
 import ReplitView from "@/components/dashboard/replit-view";
+// Removed SPN Management per request
 import LoadingState from "@/components/dashboard/loading-state";
 import ErrorState from "@/components/dashboard/error-state";
 import { useCostData } from "@/hooks/use-cost-data";
@@ -21,7 +23,7 @@ export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState("dashboard");
   const [selectedProvider, setSelectedProvider] = useState<"all" | "azure" | "mongodb">("azure");
-  const [currentView, setCurrentView] = useState<"dashboard" | "azure" | "mongodb" | "aws" | "gcp" | "total" | "agent" | "replit">("azure");
+  const [currentView, setCurrentView] = useState<"dashboard" | "azure" | "mongodb" | "aws" | "gcp" | "total" | "agent" | "openai" | "replit">("azure");
   
   const { 
     costSummary, 
@@ -74,7 +76,7 @@ export default function Dashboard() {
           activeSection={activeSection}
           onSectionChange={setActiveSection}
           onProviderSelect={setSelectedProvider}
-          onViewChange={(view) => setCurrentView(view)}
+          onViewChange={setCurrentView}
         />
         
         <main className="flex-1 overflow-auto">
@@ -204,7 +206,15 @@ export default function Dashboard() {
                   <TotalView />
                 )}
 
-                {/* OpenAI view removed */}
+                {/* OpenAI Usage View (empty shell) */}
+                {activeSection === "dashboard" && currentView === "openai" && (
+                  <OpenAIView />
+                )}
+
+                {/* Replit Usage View */}
+                {activeSection === "dashboard" && currentView === "replit" && (
+                  <ReplitView />
+                )}
 
                 {/* Dedicated MongoDB View */}
                 {activeSection === "dashboard" && currentView === "mongodb" && (
@@ -216,17 +226,12 @@ export default function Dashboard() {
                   />
                 )}
 
-                {/* Replit View */}
-                {activeSection === "dashboard" && currentView === "replit" && (
-                  <ReplitView />
-                )}
-
                 {/* Agent View */}
                 {activeSection === "dashboard" && currentView === "agent" && (
                   <AgentView />
                 )}
                 
-                {/* SPN Management removed */}
+                {/* SPN Management removed per request */}
               </>
             )}
           </div>

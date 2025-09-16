@@ -5,7 +5,7 @@ import { registerRoutes } from "./routes";
 import { registerAwsRoutes } from "./aws";
 import { registerGcpRoutes } from "./gcp";
 import { registerAgentRoutes } from "./agent";
-// OpenAI routes removed for now
+// import { registerOpenAiRoutes } from "./openai";
 import { registerReplitRoutes } from "./replit";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -48,6 +48,8 @@ app.use((req, res, next) => {
   await registerAwsRoutes(app);
   await registerGcpRoutes(app);
   await registerAgentRoutes(app);
+  // Disabled per user request: OpenAI routes
+  // await registerOpenAiRoutes(app);
   await registerReplitRoutes(app);
   // Total routes come from routes.ts aggregation endpoint
 

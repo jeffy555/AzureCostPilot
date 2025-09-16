@@ -1,0 +1,15 @@
+{
+    "timestamp": "2025-09-15T09:26:28.228Z",
+    "startDate": "2025-08-31T00:00:00.000Z",
+    "endDate": "2025-09-30T00:00:00.000Z",
+    "totalAmountUsd": 5.45,
+    "subtotalAmountUsd": 30.5,
+    "planDiscountUsd": 0,
+    "credits": {
+      "availableAdditionalCredits": 0,
+      "availableSubscriptionCredits": 0,
+      "totalGrantedAdditionalCredits": 0,
+      "totalGrantedSubscriptionCredits": 25,
+      "__typename": "Credits"
+    }
+  }

@@ -229,72 +229,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Unified total MTD (USD) across providers (Azure + AWS + GCP + MongoDB)
+  // Unified total MTD (USD) across providers
   app.get("/api/total/mtd-usd", async (_req, res) => {
     try {
       const now = new Date();
       const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
       const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
 
-      // Azure from stored cost_data (normalized to USD at ingestion time)
-      const allData = await storage.getCostData({ dateFrom: start, dateTo: end });
-      const sumProvider = (p: string) => allData
-        .filter(e => (e.provider || '').toLowerCase() === p)
+      // 1) Azure from stored cost_data (already normalized to USD)
+      const azureData = await storage.getCostData({ dateFrom: start, dateTo: end });
+      const azure = azureData
+        .filter(e => (e.provider || '').toLowerCase() === 'azure')
         .reduce((s, e) => s + (e.monthlyCost ? parseFloat(e.monthlyCost as string) : (e.dailyCost ? parseFloat(e.dailyCost as string) : 0)), 0);
-      const azure = sumProvider('azure');
 
-      // AWS and GCP via their authoritative endpoints
+      // 2) AWS and GCP via their summary endpoints (authoritative)
       const port = parseInt(process.env.PORT || '9003', 10);
       const base = `http://127.0.0.1:${port}`;
-      const [awsResp, gcpResp, mongoResp] = await Promise.all([
+      const [awsResp, gcpResp] = await Promise.all([
         fetch(`${base}/api/aws/mtd-summary`).then(r => r.json()).catch(() => ({ total: 0 })),
         fetch(`${base}/api/gcp/mtd-summary`).then(r => r.json()).catch(() => ({ total: 0 })),
-        // Prefer direct MongoDB MTD endpoint; fallback handled below
-        fetch(`${base}/api/mongodb/mtd-usage`).then(r => r.json()).catch(() => ({ usageAmount: 0 })),
       ]);
       const aws = Number(awsResp?.total || 0);
       const gcp = Number(gcpResp?.total || 0);
-      let mongodb = Number(mongoResp?.usageAmount || 0);
-      if (!Number.isFinite(mongodb) || mongodb <= 0) {
-        // Fallback to stored MongoDB entries if CE unavailable
-        mongodb = sumProvider('mongodb');
-      }
 
-      const azureRaw = azure;
-      const awsRaw = aws;
-      const gcpRaw = gcp;
-      const mongodbRaw = mongodb;
-      const totalRaw = azureRaw + awsRaw + mongodbRaw + gcpRaw;
-      const total = Number(totalRaw.toFixed(2));
+      // 3) MongoDB Atlas MTD via CE cache or fallback to stored entries
+      let mongodb = 0;
+      try {
+        // Try CE cache by reading the latest stored MongoDB monthly costs first
+        const mongoData = azureData.filter(e => (e.provider || '').toLowerCase() === 'mongodb');
+        const mongoStored = mongoData.reduce((s, e) => s + (e.monthlyCost ? parseFloat(e.monthlyCost as string) : (e.dailyCost ? parseFloat(e.dailyCost as string) : 0)), 0);
+        if (mongoStored > 0) {
+          mongodb = mongoStored;
+        } else {
+          // Lightweight CE check using existing endpoints with short polling
+          const init = await fetch(`${base}/api/mongodb/ce-init`, { method: 'POST' }).then(r => r.json()).catch(() => null as any);
+          if (init && init.token) {
+            for (let i = 0; i < 3; i++) {
+              const u = await fetch(`${base}/api/mongodb/ce-usage/${init.token}`).then(r => r.json()).catch(() => null as any);
+              const amt = Number(u?.usageAmount || 0);
+              if (amt > 0) { mongodb = amt; break; }
+              await new Promise(r => setTimeout(r, 400));
+            }
+          }
+        }
+      } catch {}
 
-      const startDate = start.toISOString().slice(0,10);
-      const endDateExclusive = end.toISOString().slice(0,10);
-      return res.json({
-        currency: 'USD',
-        // Back-compat top-level fields expected by UI
-        azure: Number(azureRaw.toFixed(2)),
-        aws: Number(awsRaw.toFixed(2)),
-        mongodb: Number(mongodbRaw.toFixed(2)),
-        gcp: Number(gcpRaw.toFixed(2)),
-        total,
-        start: startDate,
-        end: endDateExclusive,
-        // Additional diagnostics for reconciliation
-        precise: {
-          azure: azureRaw,
-          aws: awsRaw,
-          mongodb: mongodbRaw,
-          gcp: gcpRaw,
-          total: totalRaw,
-        },
-        window: {
-          timezone: 'UTC',
-          startUtc: start.toISOString(),
-          endExclusiveUtc: end.toISOString(),
-          startDate,
-          endDateExclusive,
-        },
-      });
+      // 4) Replit Total Spend from cost.json via internal endpoint
+      let replit = 0;
+      try {
+        const replitResp = await fetch(`${base}/api/replit/cost`).then(r => r.json()).catch(() => null as any);
+        replit = Number(replitResp?.totalSpendUsd || 0);
+      } catch {}
+
+      const total = azure + aws + mongodb + gcp + replit;
+      return res.json({ currency: 'USD', azure, aws, mongodb, gcp, replit, total, start: start.toISOString().slice(0,10), end: end.toISOString().slice(0,10) });
     } catch (err) {
       return res.status(500).json({ message: 'Failed to compute total MTD (USD)' });
     }

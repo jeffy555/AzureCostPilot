@@ -1,0 +1,4 @@
+2025/09/14-23:46:44.969 9bedb9 Reusing MANIFEST /Users/jeffersonimmanuel/Desktop/playwright-project/user-data-dir/Default/IndexedDB/https_replit.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/09/14-23:46:44.969 9bedb9 Recovering log #25
+2025/09/14-23:46:44.970 9bedb9 Reusing old log /Users/jeffersonimmanuel/Desktop/playwright-project/user-data-dir/Default/IndexedDB/https_replit.com_0.indexeddb.leveldb/000025.log 
+2025/09/14-23:46:45.039 9bedca Manual compaction at level-0 from '\x00\x0e\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0f\x00\x00\x00' @ 0 : 0; will stop at (end)

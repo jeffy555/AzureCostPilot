@@ -7,11 +7,12 @@ type ProviderTotals = {
   aws: number;
   mongodb: number;
   gcp: number;
+  replit: number;
   total: number;
 };
 
 export default function TotalView() {
-  const [totals, setTotals] = useState<ProviderTotals>({ azure: 0, aws: 0, mongodb: 0, gcp: 0, total: 0 });
+  const [totals, setTotals] = useState<ProviderTotals>({ azure: 0, aws: 0, mongodb: 0, gcp: 0, replit: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
   const [topTools, setTopTools] = useState<Array<{ name: string; amount: number }>>([]);
 
@@ -28,6 +29,7 @@ export default function TotalView() {
             aws: Number(json.aws || 0),
             mongodb: Number(json.mongodb || 0),
             gcp: Number(json.gcp || 0),
+            replit: Number(json.replit || 0),
             total: Number(json.total || 0),
           });
           setError(null);
@@ -46,6 +48,7 @@ export default function TotalView() {
           { name: "AWS", amount: Number(json.aws || 0) },
           { name: "MongoDB", amount: Number(json.mongodb || 0) },
           { name: "GCP", amount: Number(json.gcp || 0) },
+          { name: "Replit", amount: Number(json.replit || 0) },
         ];
         providerPairs.sort((a, b) => b.amount - a.amount);
         setTopTools(providerPairs);

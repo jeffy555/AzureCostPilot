@@ -33,12 +33,5 @@ export default defineConfig({
       strict: true,
       deny: ["**/.*"],
     },
-    proxy: {
-      "/api": {
-        target: `http://127.0.0.1:${process.env.PORT || 9003}`,
-        changeOrigin: true,
-        secure: false,
-      },
-    },
   },
 });

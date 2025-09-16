@@ -5,7 +5,7 @@ interface SidebarProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
   onProviderSelect?: (provider: "all" | "azure" | "mongodb") => void;
-  onViewChange?: (view: "dashboard" | "azure" | "mongodb" | "aws" | "gcp" | "total" | "agent" | "replit") => void;
+  onViewChange?: (view: "dashboard" | "azure" | "mongodb" | "aws" | "gcp" | "total" | "agent" | "openai" | "replit") => void;
 }
 
 export default function Sidebar({ collapsed, activeSection, onSectionChange, onProviderSelect, onViewChange }: SidebarProps) {
@@ -41,12 +41,19 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
       status: "connected",
       active: true 
     },
-    {
-      id: "replit",
-      name: "Replit",
-      icon: "fas fa-terminal",
+    { 
+      id: "replit", 
+      name: "Replit", 
+      icon: "fas fa-code", 
       status: "connected",
-      active: true
+      active: true 
+    },
+    { 
+      id: "openai", 
+      name: "OpenAI", 
+      icon: "fas fa-brain", 
+      status: "connected",
+      active: true 
     },
     { 
       id: "anthropic", 
@@ -147,11 +154,14 @@ export default function Sidebar({ collapsed, activeSection, onSectionChange, onP
                         console.log("🔥 MONGODB SIDEBAR BUTTON CLICKED!");
                         onViewChange("mongodb");
                       }
-                      if (provider.id === "replit" && onViewChange) {
-                        console.log("⚙️ REPLIT SIDEBAR BUTTON CLICKED!");
-                        onViewChange("replit" as any);
+                      if (provider.id === "openai" && onViewChange) {
+                        console.log("🤖 OPENAI SIDEBAR BUTTON CLICKED!");
+                        onViewChange("openai");
                       }
-                      // OpenAI removed
+                      if (provider.id === "replit" && onViewChange) {
+                        console.log("🧰 REPLIT SIDEBAR BUTTON CLICKED!");
+                        onViewChange("replit");
+                      }
                     }}
                     className={cn(
                       "w-full flex items-center space-x-3 px-3 py-2 rounded-md text-left",

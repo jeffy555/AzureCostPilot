@@ -1,0 +1,7 @@
+2025/09/17-02:10:30.106 95da7 Reusing MANIFEST /Users/jeffersonimmanuel/Downloads/CloudCostUnified/server/data/.replit-profile/Default/IndexedDB/https_replit.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/09/17-02:10:30.107 95da7 Recovering log #59
+2025/09/17-02:10:30.107 95da7 Reusing old log /Users/jeffersonimmanuel/Downloads/CloudCostUnified/server/data/.replit-profile/Default/IndexedDB/https_replit.com_0.indexeddb.leveldb/000059.log 
+2025/09/17-02:10:30.107 95da7 Delete type=2 #58
+2025/09/17-02:10:30.179 95dab Manual compaction at level-0 from '\x00!\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00"\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/09/17-02:10:31.505 95dab Manual compaction at level-0 from '\x00"\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00#\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/09/17-02:10:54.836 95dac Manual compaction at level-0 from '\x00#\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00$\x00\x00\x00' @ 0 : 0; will stop at (end)

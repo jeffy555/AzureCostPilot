@@ -1,0 +1,6 @@
+2025/09/15-00:47:18.117 9d1ff1 Creating DB /Users/jeffersonimmanuel/Desktop/AzureCostPilot/playwright-user-data/Default/IndexedDB/https_replit.com_0.indexeddb.leveldb since it was missing.
+2025/09/15-00:47:18.122 9d1ff1 Reusing MANIFEST /Users/jeffersonimmanuel/Desktop/AzureCostPilot/playwright-user-data/Default/IndexedDB/https_replit.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/09/15-00:47:18.139 9d1ff1 Level-0 table #5: started
+2025/09/15-00:47:18.141 9d1ff1 Level-0 table #5: 1262 bytes OK
+2025/09/15-00:47:18.142 9d1ff1 Delete type=0 #3
+2025/09/15-00:47:18.142 9d1ff1 Manual compaction at level-0 from '\x00\x01\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x02\x00\x00\x00' @ 0 : 0; will stop at (end)

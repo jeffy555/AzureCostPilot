@@ -36,3 +36,5 @@ curl --digest -u "${PUBLIC_KEY}:${PRIVATE_KEY}" \
   "https://cloud.mongodb.com/api/atlas/v2/orgs/${ORG_ID}/billing/costExplorer/usage/${TOKEN}"
 
 
+
+

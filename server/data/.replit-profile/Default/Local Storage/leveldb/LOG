@@ -1,0 +1,8 @@
+2025/09/17-02:10:29.393 95da5 Reusing MANIFEST /Users/jeffersonimmanuel/Downloads/CloudCostUnified/server/data/.replit-profile/Default/Local Storage/leveldb/MANIFEST-000001
+2025/09/17-02:10:29.414 95da5 Recovering log #19
+2025/09/17-02:10:29.415 95da5 Level-0 table #22: started
+2025/09/17-02:10:29.426 95da5 Level-0 table #22: 24737 bytes OK
+2025/09/17-02:10:29.426 95da5 Recovering log #22
+2025/09/17-02:10:29.427 95da5 Reusing old log /Users/jeffersonimmanuel/Downloads/CloudCostUnified/server/data/.replit-profile/Default/Local Storage/leveldb/000022.log 
+2025/09/17-02:10:29.438 95da5 Delete type=2 #23
+2025/09/17-02:10:29.438 95da5 Delete type=0 #19

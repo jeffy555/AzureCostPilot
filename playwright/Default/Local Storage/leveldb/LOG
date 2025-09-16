@@ -1,0 +1,11 @@
+2025/09/14-23:46:43.026 9bee17 Reusing MANIFEST /Users/jeffersonimmanuel/Desktop/playwright-project/user-data-dir/Default/Local Storage/leveldb/MANIFEST-000001
+2025/09/14-23:46:43.029 9bee17 Recovering log #11
+2025/09/14-23:46:43.029 9bee17 Reusing old log /Users/jeffersonimmanuel/Desktop/playwright-project/user-data-dir/Default/Local Storage/leveldb/000011.log 
+2025/09/14-23:46:43.029 9bee1b Compacting 4@0 + 0@1 files
+2025/09/14-23:46:43.038 9bee1b Generated table #14@0: 33 keys, 56449 bytes
+2025/09/14-23:46:43.038 9bee1b Compacted 4@0 + 0@1 files => 56449 bytes
+2025/09/14-23:46:43.040 9bee1b compacted to: files[ 0 1 0 0 0 0 0 ]
+2025/09/14-23:46:43.040 9bee1b Delete type=2 #3
+2025/09/14-23:46:43.040 9bee1b Delete type=2 #12
+2025/09/14-23:46:43.040 9bee1b Delete type=2 #6
+2025/09/14-23:46:43.041 9bee1b Delete type=2 #8

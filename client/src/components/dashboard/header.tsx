@@ -48,8 +48,6 @@ export default function Header({ onToggleSidebar, onRefresh, lastUpdated, isRefr
             <RefreshCw className={cn("text-sm", isRefreshing && "animate-spin")} />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
-          
-          {/* User section removed for mockup (no login) */}
         </div>
       </div>
     </header>
